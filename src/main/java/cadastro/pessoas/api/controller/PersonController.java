@@ -32,7 +32,7 @@ public class PersonController {
     public ResponseEntity<PersonDTO> save(@RequestBody @Valid PersonRegisterDTO personRegisterDTO,
                                           UriComponentsBuilder uriComponentsBuilder) {
         PersonDTO personDTO = this.personService.save(personRegisterDTO);
-        URI uri = uriComponentsBuilder.path("/{id}").buildAndExpand(personDTO.id()).toUri();
+        URI uri = uriComponentsBuilder.path("/api/person/{id}").buildAndExpand(personDTO.id()).toUri();
         return ResponseEntity.created(uri).body(personDTO);
     }
 

@@ -3,6 +3,7 @@ package cadastro.pessoas.api.service;
 import cadastro.pessoas.api.model.Contacts;
 import cadastro.pessoas.api.model.dtos.ContactsDTO;
 import cadastro.pessoas.api.repository.ContactRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +22,15 @@ public class ContactsService {
 
     @Transactional(readOnly = true)
     public List<Contacts> updateContacts(List<ContactsDTO> contactsDTOList) {
-        return contactsDTOList.stream().map((contactsDTO -> {
-            Contacts contacts = this.contactRepository.getReferenceById(contactsDTO.id());
-            contacts.updateFields(contactsDTO);
-            return contacts;
-        })).toList();
+        try {
+            return contactsDTOList.stream().map((contactsDTO -> {
+                Contacts contacts = this.contactRepository.getReferenceById(contactsDTO.id());
+                contacts.updateFields(contactsDTO);
+                return contacts;
+            })).toList();
+        } catch (Exception e) {
+            throw new EntityNotFoundException("Não possível encontrar contato com o ID informado.");
+        }
+
     }
 }

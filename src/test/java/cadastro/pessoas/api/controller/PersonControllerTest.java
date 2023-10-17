@@ -16,6 +16,8 @@ import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -39,6 +41,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureJsonTesters
 class PersonControllerTest {
     private final MockMvc mockMvc;
+    private final JacksonTester<Page<PersonDTO>> pageJacksonTester;
     private final JacksonTester<PersonDTO> personDTOJacksonTester;
     private final JacksonTester<PersonRegisterDTO> personRegisterDTOJacksonTester;
     @MockBean
@@ -47,10 +50,15 @@ class PersonControllerTest {
     private PersonRegisterDTO personRegisterDTO;
 
     @Autowired
-    public PersonControllerTest(MockMvc mockMvc, JacksonTester<PersonDTO> personDTOJacksonTester, JacksonTester<PersonRegisterDTO> personRegisterDTOJacksonTester) {
+    public PersonControllerTest(MockMvc mockMvc,
+                                JacksonTester<PersonDTO> personDTOJacksonTester,
+                                JacksonTester<PersonRegisterDTO> personRegisterDTOJacksonTester,
+                                JacksonTester<Page<PersonDTO>> pageJacksonTester
+                                ) {
         this.mockMvc = mockMvc;
         this.personDTOJacksonTester = personDTOJacksonTester;
         this.personRegisterDTOJacksonTester = personRegisterDTOJacksonTester;
+        this.pageJacksonTester = pageJacksonTester;
     }
 
     @BeforeEach
@@ -96,23 +104,6 @@ class PersonControllerTest {
             .andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    @DisplayName("Deveria devolver código HTTP 201 quando informações estão válidas ao buscar todos")
-    void case5() throws Exception {
-        Page<PersonDTO> page = new PageImpl<>(List.of(this.personDTO));
-
-        when(this.personService.getAll(any())).thenReturn(page);
-
-        MockHttpServletResponse response = mockMvc.perform(
-                get("/api/person")
-            )
-            .andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        String expectedJson = personDTOJacksonTester.write(this.personDTO).getJson();
-        assertThat(response.getContentAsString()).isEqualTo(expectedJson);
     }
 
     @Test

@@ -5,6 +5,7 @@ import cadastro.pessoas.api.model.Person;
 import cadastro.pessoas.api.model.dtos.PersonDTO;
 import cadastro.pessoas.api.model.dtos.PersonRegisterDTO;
 import cadastro.pessoas.api.repository.PersonRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,10 +46,14 @@ public class PersonService {
 
     @Transactional
     public PersonDTO update(PersonDTO personDTO) {
-        Person person = this.personRepository.getReferenceById(personDTO.id());
-        person.updateFields(personDTO);
-        person.setContacts(this.contactsService.updateContacts(personDTO.contactsList()));
-        return new PersonDTO(person);
+        try {
+            Person person = this.personRepository.getReferenceById(personDTO.id());
+            person.updateFields(personDTO);
+            person.setContacts(this.contactsService.updateContacts(personDTO.contactsList()));
+            return new PersonDTO(person);
+        } catch (Exception e) {
+            throw new EntityNotFoundException("Não foi encontrado pessoa com o id " + personDTO.id() + ".");
+        }
     }
 
     @Transactional
